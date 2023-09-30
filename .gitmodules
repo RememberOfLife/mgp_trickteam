@@ -1,6 +1,0 @@
-[submodule "lib/mirabel"]
-	path = lib/mirabel
-	url = https://github.com/RememberOfLife/mirabel.git
-[submodule "lib/rosalia"]
-	path = lib/rosalia
-	url = https://github.com/RememberOfLife/rosalia.git

@@ -1,0 +1,7 @@
+{
+    "name": "trickteam",
+    "client_files": ["./build/trickteam_client"],
+    "server_files": ["./build/trickteam_server"],
+    "resources": "./res/",
+    "live_data": "./config/",
+}

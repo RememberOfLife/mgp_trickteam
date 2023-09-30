@@ -6,11 +6,13 @@
 extern "C" {
 #endif
 
+//TODO add challenge reject mode, where single challenges can be rejected and rerolled, this is SM where everyone can move and id or pass and then it is immediately replaced with a random challenge of the same value
+
 typedef enum __attribute__((__packed__)) TRICKTEAM_SUIT_E {
     TRICKTEAM_SUIT_NONE = 0,
     TRICKTEAM_SUIT_BLACK,
     TRICKTEAM_SUIT_YELLOW, // cross
-    TRICKTEAM_SUIT_TEAL, // circle
+    TRICKTEAM_SUIT_TEAL, // circle //TODO rename this and others, this is blue not teal!
     TRICKTEAM_SUIT_PINK, // square
     TRICKTEAM_SUIT_GREEN, // triangle
     TRICKTEAM_SUIT_COUNT,
@@ -163,6 +165,7 @@ typedef struct trickteam_options_s {
     //TODO X players get all the tasks
     // bool real_time; //TODO
     //TODO tt1 mode where only "get x card" challenges are drafted
+    //TODO tt2 faithful mode where only the challenges in their og base game variation are offered for draw
     uint8_t challenge_points;
     trickteam_challenge* challenge_list;
 } trickteam_options;

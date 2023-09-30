@@ -243,6 +243,8 @@ static error_code create_gf(game* self, game_init* init_info)
         for (size_t player_idx = 0; player_idx < VEC_LEN(&data.players); player_idx++) {
             player_create_igf(&data.players[player_idx], player_idx + 1);
         }
+        trick_create_igf(&data.previous_trick, 0, 0); //TODO make sure everyone else also obeys the fact that these are always at least initialized
+        trick_create_igf(&data.current_trick, 0, 0);
     }
 
     {
@@ -361,7 +363,7 @@ static error_code export_state_gf(game* self, player_id player, size_t* ret_size
     export_buffers& bufs = get_bufs(self);
     char* outbuf = bufs.state;
     {
-        int a; //TODO
+        outbuf += sprintf(outbuf, ""); //TODO
     }
     *ret_size = outbuf - bufs.state;
     *ret_str = bufs.state;
@@ -395,6 +397,7 @@ static error_code import_state_gf(game* self, const char* str)
         player_create_igf(&data.players[player_idx], player_idx + 1);
     }
     data.state = data.challenge_points > 0 ? TRICKTEAM_STATE_DEALING_CHALLENGES : TRICKTEAM_STATE_DEALING_CARDS;
+    trick_destroy_igf(&data.previous_trick);
     trick_create_igf(&data.previous_trick, 0, 0);
     trick_destroy_igf(&data.current_trick);
     trick_create_igf(&data.current_trick, 0, 0); // captains id will be assigned during card dealing
@@ -1284,8 +1287,6 @@ static error_code print_gf(game* self, player_id player, size_t* ret_size, const
     export_buffers& bufs = get_bufs(self);
     char* outbuf = bufs.print;
     {
-        outbuf += sprintf(outbuf, "\n"); //REMOVE
-
         // state display
         outbuf += sprintf(outbuf, "state: ");
         switch (data.state) {
