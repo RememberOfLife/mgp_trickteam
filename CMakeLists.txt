@@ -57,7 +57,7 @@ target_compile_options(mgp_trickteam_server PRIVATE
     "-Wfatal-errors" # stop after first error
 )
 target_include_directories(mgp_trickteam_server PRIVATE ${INCLUDES})
-target_include_directories(mgp_tictactoe_server PUBLIC ${MIRABEL_INCLUDE_DIRS})
+target_include_directories(mgp_trickteam_server PUBLIC ${MIRABEL_INCLUDE_DIRS})
 target_link_options(mgp_trickteam_server PRIVATE -rdynamic)
 set_target_properties(mgp_trickteam_server PROPERTIES EXPORT_COMPILE_COMMANDS true)
 

@@ -2,7 +2,7 @@
 
 #include "mirabel/frontend.h"
 
-#include "frontend_plugin.h"
+#include "frontend.h"
 
 uint64_t plugin_get_frontend_capi_version()
 {

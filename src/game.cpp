@@ -12,7 +12,7 @@
 #define ROSALIA_VECTOR_IMPLEMENTATION
 #include "rosalia/vector.h"
 
-#include "surena/game.h"
+#include "mirabel/game.h"
 
 #include "game.h"
 
@@ -109,18 +109,18 @@ static const trickteam_internal_methods trickteam_gbe_internal_methods{
 };
 
 // declare and form game
-#define SURENA_GDD_BENAME trickteam_standard_gbe
-#define SURENA_GDD_GNAME "TrickTeam"
-#define SURENA_GDD_VNAME "Standard"
-#define SURENA_GDD_INAME "mirabel_supplemental"
-#define SURENA_GDD_VERSION ((semver){0, 1, 0})
-#define SURENA_GDD_INTERNALS &trickteam_gbe_internal_methods
-#define SURENA_GDD_FF_OPTIONS
-#define SURENA_GDD_FF_RANDOM_MOVES
-#define SURENA_GDD_FF_HIDDEN_INFORMATION
-#define SURENA_GDD_FF_SIMULTANEOUS_MOVES
-#define SURENA_GDD_FF_PRINT
-#include "surena/game_decldef.h"
+#define MIRABEL_GDD_BENAME trickteam_standard_gbe
+#define MIRABEL_GDD_GNAME "TrickTeam"
+#define MIRABEL_GDD_VNAME "Standard"
+#define MIRABEL_GDD_INAME "mirabel_supplemental"
+#define MIRABEL_GDD_VERSION ((semver){0, 1, 0})
+#define MIRABEL_GDD_INTERNALS &trickteam_gbe_internal_methods
+#define MIRABEL_GDD_FF_OPTIONS
+#define MIRABEL_GDD_FF_RANDOM_MOVES
+#define MIRABEL_GDD_FF_HIDDEN_INFORMATION
+#define MIRABEL_GDD_FF_SIMULTANEOUS_MOVES
+#define MIRABEL_GDD_FF_PRINT
+#include "mirabel/game_decldef.h"
 
 // implementation
 
@@ -322,13 +322,7 @@ static error_code copy_from_gf(game* self, game* other)
     return ERR_FEATURE_UNSUPPORTED;
 }
 
-static error_code compare_gf(game* self, game* other, bool* ret_equal)
-{
-    //TODO this should be a disableable feature >:(
-    return ERR_FEATURE_UNSUPPORTED;
-}
-
-static error_code export_options_gf(game* self, player_id player, size_t* ret_size, const char** ret_str)
+static error_code export_options_gf(game* self, size_t* ret_size, const char** ret_str)
 {
     opts_repr& opts = get_opts(self);
     export_buffers& bufs = get_bufs(self);
@@ -356,7 +350,7 @@ static error_code player_count_gf(game* self, uint8_t* ret_count)
     return ERR_OK;
 }
 
-static error_code export_state_gf(game* self, player_id player, size_t* ret_size, const char** ret_str)
+static error_code export_state_gf(game* self, size_t* ret_size, const char** ret_str)
 {
     opts_repr& opts = get_opts(self);
     state_repr& data = get_repr(self);
@@ -403,7 +397,7 @@ static error_code import_state_gf(game* self, const char* str)
     trick_create_igf(&data.current_trick, 0, 0); // captains id will be assigned during card dealing
     data.current_trick_id = 0;
     data.max_tricks = (uint8_t[]){13, 10, 8}[opts.player_count - 3]; // for 3/4/5 players
-    data.lead_player = PLAYER_RAND;
+    data.lead_player = PLAYER_ENV;
     data.open_communications = (opts.communication_limit > 0 ? opts.communication_limit : opts.player_count);
     data.win = false;
     if (str == NULL) {
@@ -455,10 +449,10 @@ static error_code players_to_move_gf(game* self, uint8_t* ret_count, const playe
             assert(0);
         } break;
         case TRICKTEAM_STATE_DEALING_CHALLENGES: {
-            outbuf[count++] = PLAYER_RAND;
+            outbuf[count++] = PLAYER_ENV;
         } break;
         case TRICKTEAM_STATE_DEALING_CARDS: {
-            outbuf[count++] = PLAYER_RAND;
+            outbuf[count++] = PLAYER_ENV;
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SELECTING: {
             outbuf[count++] = data.lead_player;
@@ -533,7 +527,7 @@ static error_code get_concrete_moves_gf(game* self, player_id player, uint32_t* 
             // when specifying
             // for player rand dealing challenges, its the last one in the challenge deck
             // for a real player, its the last in their personal deck
-            count += challenge_specification_get_concrete_moves_igf(outbuf, player == PLAYER_RAND ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
+            count += challenge_specification_get_concrete_moves_igf(outbuf, player == PLAYER_ENV ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
         } break;
         case TRICKTEAM_STATE_COMMUNICATING: {
             if (data.players[player - 1].hidden_info == false) {
@@ -679,7 +673,7 @@ static error_code get_concrete_move_probabilities_gf(game* self, uint32_t* ret_c
     return ERR_OK;
 }
 
-static error_code get_random_move_gf(game* self, uint64_t seed, move_data_sync** ret_move)
+static error_code get_random_move_gf(game* self, seed128 seed, const move_data_sync** ret_move)
 {
     opts_repr& opts = get_opts(self);
     state_repr& data = get_repr(self);
@@ -708,47 +702,6 @@ static error_code get_random_move_gf(game* self, uint64_t seed, move_data_sync**
         } break;
     }
     *ret_move = outbuf;
-    return ERR_OK;
-}
-
-static error_code get_actions_gf(game* self, player_id player, uint32_t* ret_count, const move_data** ret_moves)
-{
-    return ERR_FEATURE_UNSUPPORTED; //REMOVE
-    opts_repr& opts = get_opts(self);
-    state_repr& data = get_repr(self);
-    export_buffers& bufs = get_bufs(self);
-    move_data* outbuf = bufs.actions;
-    uint32_t count = 0;
-    switch (data.state) {
-        case TRICKTEAM_STATE_NONE: {
-            assert(0);
-        } break;
-        case TRICKTEAM_STATE_DEALING_CHALLENGES: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_DEALING_CARDS: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_CHALLENGE_SELECTING: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_CHALLENGE_SPECIFYING: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_COMMUNICATING: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_TRICK_PLAYING: {
-            //TODO
-        } break;
-        case TRICKTEAM_STATE_DONE:
-        case TRICKTEAM_STATE_COUNT:
-        case TRICKTEAM_STATE_SIZE_MAX: {
-            assert(0);
-        } break;
-    }
-    *ret_count = count;
-    *ret_moves = bufs.actions;
     return ERR_OK;
 }
 
@@ -787,7 +740,7 @@ static error_code is_legal_move_gf(game* self, player_id player, move_data_sync 
     return ERR_OK;
 }
 
-static error_code move_to_action_gf(game* self, player_id player, move_data_sync move, player_id target_player, move_data_sync** ret_action)
+static error_code move_to_action_gf(game* self, player_id player, move_data_sync move, uint8_t target_count, const player_id* target_players, move_data_sync** ret_action)
 {
     opts_repr& opts = get_opts(self);
     state_repr& data = get_repr(self);
@@ -799,30 +752,37 @@ static error_code move_to_action_gf(game* self, player_id player, move_data_sync
             assert(0);
         } break;
         case TRICKTEAM_STATE_DEALING_CHALLENGES: {
-            *outbuf = game_e_move_sync_copy(move);
+            game_e_move_sync_copy(outbuf, &move);
         } break;
         case TRICKTEAM_STATE_DEALING_CARDS: {
             trickteam_card move_card = (trickteam_card){
                 .suit = (TRICKTEAM_SUIT)((mcode >> 8) & 0xFF),
                 .value = (uint8_t)(mcode & 0xFF),
             };
-            if (target_player == data.lead_player || card_eq_igf(move_card, (trickteam_card){.suit = TRICKTEAM_SUIT_BLACK, .value = 4}) == true) {
-                *outbuf = game_e_move_sync_copy(move);
+            bool reveal_dealt_card = false;
+            for (uint8_t i = 0; i < target_count; i++) {
+                if (target_players[i] == data.lead_player || card_eq_igf(move_card, (trickteam_card){.suit = TRICKTEAM_SUIT_BLACK, .value = 4}) == true) {
+                    reveal_dealt_card = true;
+                    break;
+                }
+            }
+            if (reveal_dealt_card == true) {
+                game_e_move_sync_copy(outbuf, &move);
             } else {
                 *outbuf = game_e_create_move_sync_small(self, ((move_code)TRICKTEAM_SUIT_NONE << 8) | (move_code)0);
             }
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SELECTING: {
-            *outbuf = game_e_move_sync_copy(move);
+            game_e_move_sync_copy(outbuf, &move);
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SPECIFYING: {
-            *outbuf = game_e_move_sync_copy(move);
+            game_e_move_sync_copy(outbuf, &move);
         } break;
         case TRICKTEAM_STATE_COMMUNICATING: {
-            *outbuf = game_e_move_sync_copy(move);
+            game_e_move_sync_copy(outbuf, &move);
         } break;
         case TRICKTEAM_STATE_TRICK_PLAYING: {
-            *outbuf = game_e_move_sync_copy(move);
+            game_e_move_sync_copy(outbuf, &move);
         } break;
         case TRICKTEAM_STATE_DONE:
         case TRICKTEAM_STATE_COUNT:
@@ -933,14 +893,14 @@ static error_code make_move_gf(game* self, player_id player, move_data_sync move
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SPECIFYING: {
             // move is challenge specific specification, specify the challenge
-            challenge_specification_make_move_igf(move.md, player == PLAYER_RAND ? &VEC_LAST(&data.challenge_pool) : &VEC_LAST(&data.players[player - 1].challenges));
+            challenge_specification_make_move_igf(move.md, player == PLAYER_ENV ? &VEC_LAST(&data.challenge_pool) : &VEC_LAST(&data.players[player - 1].challenges));
             // challenge might need more specification
-            if (challenge_needs_specification_igf(player == PLAYER_RAND ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges), player != PLAYER_RAND)) {
+            if (challenge_needs_specification_igf(player == PLAYER_ENV ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges), player != PLAYER_ENV)) {
                 break;
             }
             // are we still dealing out challenges to the pool / selecting challenges from the pool?
-            bool still_dealing_or_selecting = (data.lead_player == PLAYER_RAND ? data.challenge_points > 0 : VEC_LEN(&data.challenge_pool) > 0);
-            if (still_dealing_or_selecting == true && data.lead_player == PLAYER_RAND) {
+            bool still_dealing_or_selecting = (data.lead_player == PLAYER_ENV ? data.challenge_points > 0 : VEC_LEN(&data.challenge_pool) > 0);
+            if (still_dealing_or_selecting == true && data.lead_player == PLAYER_ENV) {
                 // player rand continues to deal challenges
                 data.state = TRICKTEAM_STATE_DEALING_CHALLENGES;
             } else if (still_dealing_or_selecting == true) {
@@ -949,8 +909,8 @@ static error_code make_move_gf(game* self, player_id player, move_data_sync move
                 data.lead_player = (data.lead_player % opts.player_count) + 1;
             } else {
                 // if not dealing / selecting anymore, captain is lead player to select / play next
-                data.state = (data.lead_player == PLAYER_RAND ? TRICKTEAM_STATE_DEALING_CARDS : TRICKTEAM_STATE_COMMUNICATING);
-                data.lead_player = (data.lead_player == PLAYER_RAND ? 1 : data.current_trick.lead_player);
+                data.state = (data.lead_player == PLAYER_ENV ? TRICKTEAM_STATE_DEALING_CARDS : TRICKTEAM_STATE_COMMUNICATING);
+                data.lead_player = (data.lead_player == PLAYER_ENV ? 1 : data.current_trick.lead_player);
             }
         } break;
         case TRICKTEAM_STATE_COMMUNICATING: {
@@ -1152,7 +1112,7 @@ static error_code get_move_data_gf(game* self, player_id player, const char* str
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SPECIFYING: {
             move_data speci_move;
-            error_code ec = challenge_specification_get_move_data_igf(str, &speci_move, player == PLAYER_RAND ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
+            error_code ec = challenge_specification_get_move_data_igf(str, &speci_move, player == PLAYER_ENV ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
             if (ec != ERR_OK) {
                 return ERR_INVALID_INPUT;
             }
@@ -1246,7 +1206,7 @@ static error_code get_move_str_gf(game* self, player_id player, move_data_sync m
             }
         } break;
         case TRICKTEAM_STATE_CHALLENGE_SPECIFYING: {
-            outbuf += challenge_specification_get_move_str_igf(outbuf, move.md, player == PLAYER_RAND ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
+            outbuf += challenge_specification_get_move_str_igf(outbuf, move.md, player == PLAYER_ENV ? VEC_LAST(&data.challenge_pool) : VEC_LAST(&data.players[player - 1].challenges));
         } break;
         case TRICKTEAM_STATE_COMMUNICATING: {
             trickteam_communication com = (trickteam_communication){
@@ -1280,7 +1240,7 @@ static error_code get_move_str_gf(game* self, player_id player, move_data_sync m
     return ERR_OK;
 }
 
-static error_code print_gf(game* self, player_id player, size_t* ret_size, const char** ret_str)
+static error_code print_gf(game* self, size_t* ret_size, const char** ret_str)
 {
     opts_repr& opts = get_opts(self);
     state_repr& data = get_repr(self);

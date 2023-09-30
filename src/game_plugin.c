@@ -1,12 +1,12 @@
 #include <stdint.h>
 
-#include "surena/game.h"
+#include "mirabel/game.h"
 
 #include "game.h"
 
 uint64_t plugin_get_game_capi_version()
 {
-    return SURENA_GAME_API_VERSION;
+    return MIRABEL_GAME_API_VERSION;
 }
 
 void plugin_init_game()

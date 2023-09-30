@@ -1,6 +1,6 @@
 #pragma once
 
-#include "surena/game.h"
+#include "mirabel/game.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,7 +8,7 @@ extern "C" {
 
 //TODO add challenge reject mode, where single challenges can be rejected and rerolled, this is SM where everyone can move and id or pass and then it is immediately replaced with a random challenge of the same value
 
-typedef enum __attribute__((__packed__)) TRICKTEAM_SUIT_E {
+typedef enum TRICKTEAM_SUIT_E {
     TRICKTEAM_SUIT_NONE = 0,
     TRICKTEAM_SUIT_BLACK,
     TRICKTEAM_SUIT_YELLOW, // cross
@@ -17,7 +17,7 @@ typedef enum __attribute__((__packed__)) TRICKTEAM_SUIT_E {
     TRICKTEAM_SUIT_GREEN, // triangle
     TRICKTEAM_SUIT_COUNT,
     TRICKTEAM_SUIT_FIRST_NON_BLACK = TRICKTEAM_SUIT_BLACK + 1,
-    TRICKTEAM_SUIT_SIZE_MAX = 0xFF,
+    TRICKTEAM_SUIT_SIZE_MAX = UINT8_MAX,
 } TRICKTEAM_SUIT;
 
 typedef struct trickteam_card_s {
@@ -25,7 +25,7 @@ typedef struct trickteam_card_s {
     uint8_t value;
 } trickteam_card;
 
-typedef enum __attribute__((__packed__)) TRICKTEAM_CHALLENGE_TYPE_E {
+typedef enum TRICKTEAM_CHALLENGE_TYPE_E {
     TRICKTEAM_CHALLENGE_TYPE_NONE = 0,
 
     // TRICKTEAM_CHALLENGE_TYPE_WIN_SPECIFIC_WITH_BLACK, // e.g. win a specific card with suit and value with a black card
@@ -95,17 +95,17 @@ typedef enum __attribute__((__packed__)) TRICKTEAM_CHALLENGE_TYPE_E {
 
     TRICKTEAM_CHALLENGE_TYPE_COUNT,
     TRICKTEAM_CHALLENGE_TYPE_FIRST = TRICKTEAM_CHALLENGE_TYPE_NONE + 1,
-    TRICKTEAM_CHALLENGE_TYPE_SIZE_MAX = 0xFFFF,
+    TRICKTEAM_CHALLENGE_TYPE_SIZE_MAX = UINT16_MAX,
 } TRICKTEAM_CHALLENGE_TYPE;
 
-typedef enum __attribute__((__packed__)) TRICKTEAM_CHALLENGE_STATE_E {
+typedef enum TRICKTEAM_CHALLENGE_STATE_E {
     TRICKTEAM_CHALLENGE_STATE_IDLE = 0,
     TRICKTEAM_CHALLENGE_STATE_PENDING_FAIL,
     TRICKTEAM_CHALLENGE_STATE_PENDING_PASS,
     TRICKTEAM_CHALLENGE_STATE_FAIL,
     TRICKTEAM_CHALLENGE_STATE_PASS,
     TRICKTEAM_CHALLENGE_STATE_COUNT,
-    TRICKTEAM_CHALLENGE_STATE_SIZE_MAX = 0xFF,
+    TRICKTEAM_CHALLENGE_STATE_SIZE_MAX = UINT8_MAX,
 } TRICKTEAM_CHALLENGE_STATE;
 
 typedef struct trickteam_challenge_s {
@@ -119,13 +119,13 @@ typedef struct trickteam_challenge_s {
     } du;
 } trickteam_challenge;
 
-typedef enum __attribute__((__packed__)) TRICKTEAM_COMMUNICATION_E {
+typedef enum TRICKTEAM_COMMUNICATION_E {
     TRICKTEAM_COMMUNICATION_NONE = 0,
     TRICKTEAM_COMMUNICATION_LOWEST,
     TRICKTEAM_COMMUNICATION_SINGULAR,
     TRICKTEAM_COMMUNICATION_HIGHEST,
     TRICKTEAM_COMMUNICATION_COUNT,
-    TRICKTEAM_COMMUNICATION_SIZE_MAX = 0xFF,
+    TRICKTEAM_COMMUNICATION_SIZE_MAX = UINT8_MAX,
 } TRICKTEAM_COMMUNICATION;
 
 typedef struct trickteam_communication_s {
@@ -170,7 +170,7 @@ typedef struct trickteam_options_s {
     trickteam_challenge* challenge_list;
 } trickteam_options;
 
-typedef enum __attribute__((__packed__)) TRICKTEAM_STATE_E {
+typedef enum TRICKTEAM_STATE_E {
     TRICKTEAM_STATE_NONE = 0,
     TRICKTEAM_STATE_DEALING_CHALLENGES,
     TRICKTEAM_STATE_DEALING_CARDS,
@@ -180,7 +180,7 @@ typedef enum __attribute__((__packed__)) TRICKTEAM_STATE_E {
     TRICKTEAM_STATE_TRICK_PLAYING,
     TRICKTEAM_STATE_DONE,
     TRICKTEAM_STATE_COUNT,
-    TRICKTEAM_STATE_SIZE_MAX = 0xFF,
+    TRICKTEAM_STATE_SIZE_MAX = UINT8_MAX,
 } TRICKTEAM_STATE;
 
 typedef struct trickteam_state_s {
